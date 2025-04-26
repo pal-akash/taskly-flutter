@@ -1,0 +1,34 @@
+name: Android Dev Build
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  build-android-dev:
+    name: Build and Upload Android Dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --debug
+
+      - name: Check APK Output
+        run: ls -R build/app/outputs/flutter-apk/
+
+      - name: Upload APK to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/app/outputs/flutter-apk/app-debug.apk
+          asset_name: app-debug.apk
+          tag: android-dev-${{ github.run_number }}
+          overwrite: true
+          body: "Android dev build #${{ github.run_number }}"
