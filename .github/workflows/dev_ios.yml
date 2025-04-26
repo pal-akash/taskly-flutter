@@ -14,6 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create tag and push to remote
+        run: |
+          git tag ios-dev-${{ github.run_number }}
+          git push origin ios-dev-${{ github.run_number }}
+
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
