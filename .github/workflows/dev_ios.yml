@@ -28,15 +28,23 @@ jobs:
       - run: pod repo update
         working-directory: ios
 
-      - run: flutter build ios --debug --no-codesign
+      - run: flutter build ios --release --no-codesign
         if: startsWith(github.ref, 'refs/tags/ios-dev')
+
+      - name: Create IPA from build
+        run: |
+          mkdir -p build/ios/ipa
+          cp -R build/ios/iphoneos/Runner.app build/ios/ipa/
+          cd build/ios/ipa
+          zip -r FlutterApp.ipa Runner.app
+        working-directory: ./  # Make sure this is the root directory of your repo
 
       - name: Upload iOS Dev IPA to GitHub Release
         if: startsWith(github.ref, 'refs/tags/ios-dev')
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/ios/iphoneos/Runner.app
+          file: build/ios/ipa/FlutterApp.ipa  # Pointing to the .ipa file
           tag: ${{ github.ref_name }}
           overwrite: true
           body: "iOS dev build for ${{ github.ref_name }}"
