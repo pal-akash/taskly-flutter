@@ -23,18 +23,22 @@ jobs:
         with:
           channel: 'stable'
 
+      - run: flutter doctor  # Check Flutter environment
+
       - run: flutter pub get
 
       - run: pod repo update
         working-directory: ios
 
-      - run: flutter build ios --release --no-codesign
+      - name: Build iOS Application
+        run: |
+          flutter build ios --release --no-codesign
         if: startsWith(github.ref, 'refs/tags/ios-dev')
 
-      - name: Check build output directories (Debug step)
+      - name: Check if build output directory exists
         run: |
           echo "Checking build output..."
-          ls -R build/ios/
+          ls -R build/
 
       - name: Create IPA from build
         run: |
@@ -44,8 +48,7 @@ jobs:
             cd build/ios/ipa
             zip -r FlutterApp.ipa Runner.app
           else
-            echo "Runner.app not found in iphoneos directory. Checking other locations..."
-            ls -R build/ios/simulator  # Check if the app was built for the simulator
+            echo "Runner.app not found in iphoneos directory."
             exit 1
           fi
         working-directory: ./  # Ensure this is the root directory of your repo
