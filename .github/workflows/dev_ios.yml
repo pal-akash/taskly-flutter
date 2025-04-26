@@ -31,8 +31,10 @@ jobs:
       - run: flutter build ios --release --no-codesign
         if: startsWith(github.ref, 'refs/tags/ios-dev')
 
-      - name: List build output directory (Debug step)
-        run: ls -R build/ios/iphoneos  # List files in the output directory
+      - name: Check build output directories (Debug step)
+        run: |
+          echo "Checking build output..."
+          ls -R build/ios/
 
       - name: Create IPA from build
         run: |
@@ -42,7 +44,8 @@ jobs:
             cd build/ios/ipa
             zip -r FlutterApp.ipa Runner.app
           else
-            echo "Runner.app not found. Please check the build process."
+            echo "Runner.app not found in iphoneos directory. Checking other locations..."
+            ls -R build/ios/simulator  # Check if the app was built for the simulator
             exit 1
           fi
         working-directory: ./  # Ensure this is the root directory of your repo
